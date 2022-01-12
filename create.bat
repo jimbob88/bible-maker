@@ -1,0 +1,1 @@
+java -jar .\BibleMultiConverter-AllInOneEdition.jar SWORD ..\GerBoLut\ Diffable .\gerbolut.txt
