@@ -7,28 +7,28 @@
 \author{James Blackburn}
 \date{January 2022}
 \geometry{a4paper, left=35mm, right=35mm, top=51mm, bottom=30mm}
-% \makeatletter %https://tex.stackexchange.com/a/348297
-% \let\old@l@part\l@part
-% \renewcommand{\l@part}[2]{%
-%   \old@l@part{#1}{#2}% Regular setting of \part in ToC
-%   \pagebreak[0]}% Add a zero penalty (for possible page break)
-% \makeatother
+\makeatletter %https://tex.stackexchange.com/a/348297
+\let\old@l@part\l@part
+\renewcommand{\l@part}[2]{%
+  \old@l@part{#1}{#2}% Regular setting of \part in ToC
+  \pagebreak[0]}% Add a zero penalty (for possible page break)
+\makeatother
 
 
-% \makeatletter
-% % First, modify the \@endpart macro.
-% \def\@endpart{} 
+\makeatletter
+% First, modify the \@endpart macro.
+\def\@endpart{} 
 
-% % Next, copy the \chapter macro to \nonewpagechapter, and ...
-% % ... suppress page-breaking instructions in the modified macro
-% \let\nonewpagechapter\chapter 
-% \patchcmd\nonewpagechapter{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
-% \makeatother
+% Next, copy the \chapter macro to \nonewpagechapter, and ...
+% ... suppress page-breaking instructions in the modified macro
+\let\nonewpagechapter\chapter 
+\patchcmd\nonewpagechapter{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+\makeatother
 
 \begin{document}
 \maketitle
 % \begin{multicols}{2}
-% \tableofcontents
+\tableofcontents
 % \end{multicols}
 
 ${books}

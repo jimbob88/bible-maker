@@ -105,7 +105,7 @@ for book, verses in versed_book.items():
     book = joined_conversion_table[book]
     # print(book)
     text += (
-        r'\section*{%s}\pagebreak[1]'
+        r'\part{%s}\pagebreak[1]'
         '\n'
         r'\begin{multicols}{2}'
         '\n' % book
