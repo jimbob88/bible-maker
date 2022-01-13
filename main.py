@@ -105,8 +105,9 @@ for book, verses in versed_book.items():
     book = joined_conversion_table[book]
     # print(book)
     text += (
+        r'\section*{%s}\pagebreak[1]'
+        '\n'
         r'\begin{multicols}{2}'
-        r'[\part{%s}]' 
         '\n' % book
     )
     for subsection in [(item[0], list(item[1])) for item in itertools.groupby(verses, key=lambda x: x[1]) ]:
