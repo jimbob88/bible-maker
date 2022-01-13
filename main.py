@@ -3,6 +3,13 @@ import re
 import itertools
 import pprint as pp
 
+from string import Template
+class MyTemplate(Template):
+    '''
+    https://stackabuse.com/formatting-strings-with-the-python-template-class/
+    '''
+    delimiter = '$'
+
 conversion_table = OrderedDict({
     "ot": OrderedDict([
         ("Gen", "Genesis"),
@@ -90,7 +97,9 @@ versed = re.findall(verse_regex, bible, re.MULTILINE)
 # versed_book = OrderedDict([(verse[0], verse[1:]) for verse in versed])
 versed_book = OrderedDict([(item[0], list(item[1])) for item in itertools.groupby(versed, key=lambda x: x[0])])
 # pp.pprint(versed_book)
-text = open('template.tex', 'r', encoding='utf-8').read()
+# text = open('template.tex', 'r', encoding='utf-8').read()
+
+text = ""
 
 for book, verses in versed_book.items():
     book = joined_conversion_table[book]
@@ -100,12 +109,17 @@ for book, verses in versed_book.items():
         r'[\part{%s}]' 
         '\n' % book
     )
-    for verse in [(item[0], list(item[1])) for item in itertools.groupby(verses, key=lambda x: x[1]) ]:
-        print(verse)
+    for subsection in [(item[0], list(item[1])) for item in itertools.groupby(verses, key=lambda x: x[1]) ]:
+        # print(subsection)
         text += (
             r'\subsection*{%s}'
             '\n'
-            % verse[0]
+            % subsection[0]
+            )
+        for verse in subsection[1]:
+            text += (
+                '$^{%s}$ %s\n'
+                % (verse[2], verse[3])
             )
      
     text += (
@@ -113,10 +127,10 @@ for book, verses in versed_book.items():
         '\n'        
     )
 
-text += r"\end{document}"
 
-with open('generate.tex', 'w') as f:
-    f.write(text)
+with open('generate.tex', 'w', encoding='utf-8') as f:
+    temp = MyTemplate(open('template.tex', 'r', encoding='utf-8').read())
+    f.write(temp.substitute(books=text))
 
 print(text[:1000000])
 

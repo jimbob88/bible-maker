@@ -1,12 +1,34 @@
 \documentclass{book}
-\usepackage{blindtext}
 \usepackage{multicol}
+\usepackage{newtxtext,geometry,lscape}
 \setlength{\columnsep}{1cm}
 \title{The Bible}
 \author{James Blackburn}
 \date{January 2022}
 
+\makeatletter %https://tex.stackexchange.com/a/348297
+\let\old@l@part\l@part
+\renewcommand{\l@part}[2]{%
+  \old@l@part{#1}{#2}% Regular setting of \part in ToC
+  \pagebreak[0]}% Add a zero penalty (for possible page break)
+\makeatother
+
+
+\makeatletter
+% First, modify the \@endpart macro.
+\def\@endpart{} 
+
+% Next, copy the \chapter macro to \nonewpagechapter, and ...
+% ... suppress page-breaking instructions in the modified macro
+\let\nonewpagechapter\chapter 
+\patchcmd\nonewpagechapter{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
+\makeatother
+
 \begin{document}
 \maketitle
 \tableofcontents
+\newpage
 
+${books}
+
+\end{document}
