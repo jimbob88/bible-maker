@@ -24,7 +24,7 @@
 \let\nonewpagechapter\chapter 
 \patchcmd\nonewpagechapter{\if@openright\cleardoublepage\else\clearpage\fi}{}{}{}
 \makeatother
-
+\let\cleardoublepage=\clearpage
 \begin{document}
 \maketitle
 % \begin{multicols}{2}
