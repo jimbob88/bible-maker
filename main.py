@@ -87,7 +87,7 @@ joined_conversion_table.update(conversion_table['ot'])
 joined_conversion_table.update(conversion_table['nt'])
 
 # Generate in form: r"(Gen|Rev) (\d+):(\d)+ .*"
-verse_regex = r"("+ '|'.join(joined_conversion_table)+ r") (\d+):(\d)+ (.*)"
+verse_regex = r"("+ '|'.join(joined_conversion_table)+ r") (\d+):(\d+) (.*)"
 print(verse_regex)
 
 with open('gerbolut.txt', 'r', encoding='utf-8') as f:
@@ -112,7 +112,7 @@ for book, verses in versed_book.items():
     for subsection in [(item[0], list(item[1])) for item in itertools.groupby(verses, key=lambda x: x[1]) ]:
         # print(subsection)
         text += (
-            r'\subsection*{%s}'
+            r'\subparagraph*{%s}'
             '\n'
             % subsection[0]
             )
