@@ -2,13 +2,26 @@ from collections import OrderedDict
 import re
 import itertools
 import pprint as pp
-
+import json
 from string import Template
+
+
+import argparse
+
 class MyTemplate(Template):
     '''
     https://stackabuse.com/formatting-strings-with-the-python-template-class/
     '''
     delimiter = '$'
+
+
+parser = argparse.ArgumentParser(description = "A software for generating bibles")
+parser.add_argument('--paragrapher', '-p', required=False, help="select where the paragraphing json is")
+args = parser.parse_args()
+
+if args.paragrapher is not None:
+    para = json.load(open(args.paragrapher, 'r'))
+
 
 conversion_table = OrderedDict({
     "ot": OrderedDict([
@@ -94,10 +107,7 @@ with open('gerbolut.txt', 'r', encoding='utf-8') as f:
     bible = f.read()
 
 versed = re.findall(verse_regex, bible, re.MULTILINE)
-# versed_book = OrderedDict([(verse[0], verse[1:]) for verse in versed])
 versed_book = OrderedDict([(item[0], list(item[1])) for item in itertools.groupby(versed, key=lambda x: x[0])])
-# pp.pprint(versed_book)
-# text = open('template.tex', 'r', encoding='utf-8').read()
 
 text = ""
 
@@ -122,6 +132,13 @@ for book, verses in versed_book.items():
                 '$^{%s}$ %s\n'
                 % (verse[2], verse[3])
             )
+            if args.paragrapher is not None:
+                try:
+                    for pnumber, paragraph in enumerate(para[book][f"{int(subsection[0]):02d}"]):
+                        if int(verse[2])  == paragraph[-1]:
+                            text += r'\par'
+                except KeyError:
+                    pass
      
     text += (
         r'\end{multicols}'
@@ -134,14 +151,3 @@ with open('generate.tex', 'w', encoding='utf-8') as f:
     f.write(temp.substitute(books=text))
 
 print(text[:1000000])
-
-# text = r"""
-# \begin{multicols}{2}
-# [
-# \section{First Section}
-# All human things are subject to decay. And when fate summons, Monarchs must obey.
-# ]
-# \blindtext\blindtext
-# \end{multicols}
-# """
-# print(text)
