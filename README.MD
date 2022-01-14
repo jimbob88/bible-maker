@@ -9,7 +9,7 @@ This is a piece of software to help you generate your own copy of the bible!
 3. Unzip your copy of BibleMultiConverter. This created the directory `C:\Users\black\Downloads\BibleMultiConverter-AllInOneEdition-0.0.8` on my system.
 4. Unzip your Bible from crosswire into a folder of the same name `GerBoLut.zip -> .\GerBoLut`. Move this folder into the same folder as BibleMultiConverter
 5. Open a commandline window in the directory which contains `BibleMultiConverter-AllInOneEdition.jar`. (Shift+Right-Click `Open PowerShell window here`)
-6. Use the code from `create.bat` to generate your "Diffable" file.
+6. Generate a "Diffable" file:
    For example, if I was doing this for `GerBoLut`:
 
 ```
