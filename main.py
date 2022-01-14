@@ -16,6 +16,7 @@ class MyTemplate(Template):
 
 
 parser = argparse.ArgumentParser(description = "A software for generating bibles")
+parser.add_argument('--bibletxt', '-o', required=True, help="Choose which bible DIFFABLE you will use")
 parser.add_argument('--paragrapher', '-p', required=False, help="select where the paragraphing json is")
 args = parser.parse_args()
 
@@ -103,7 +104,7 @@ joined_conversion_table.update(conversion_table['nt'])
 verse_regex = r"("+ '|'.join(joined_conversion_table)+ r") (\d+):(\d+) (.*)"
 print(verse_regex)
 
-with open('gerbolut.txt', 'r', encoding='utf-8') as f:
+with open(args.bibletxt, 'r', encoding='utf-8') as f:
     bible = f.read()
 
 versed = re.findall(verse_regex, bible, re.MULTILINE)
