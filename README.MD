@@ -5,9 +5,11 @@ This is a piece of software to help you generate your own copy of the bible!
 ## Guide
 
 1. Download the copy of your bible from [Crosswire's Module Database](http://crosswire.org/sword/modules/ModDisp.jsp?modType=Bibles). I personally chose: [GerBoLut](http://crosswire.org/sword/modules/ModInfo.jsp?modName=GerBoLut)
-2. Download a copy of schierlm's [BibleMultiConverter](https://github.com/schierlm/BibleMultiConverter). I'd recommend `BibleMultiConverter-AllInOneEdition-0.0.8.zip` (this is the current version available as of 14/01/2022)
+2. Download a copy of schierlm's [BibleMultiConverter](https://github.com/schierlm/BibleMultiConverter). I'd recommend `BibleMultiConverter-AllInOneEdition-0.0.8.zip` (this is the current version available as of 29/08/2022)
 3. Unzip your copy of BibleMultiConverter. This created the directory `C:\Users\black\Downloads\BibleMultiConverter-AllInOneEdition-0.0.8` on my system.
-4. Unzip your Bible from crosswire into a folder of the same name `GerBoLut.zip -> .\GerBoLut`. Move this folder into the same folder as BibleMultiConverter (WARNING: This is not the correct method as of 16/01/2022, you need to install this bible as a module, to do this easily download a copy of [Bible Time](https://bibletime.info/) and install your bible from there)
+4. <s>Unzip your Bible from crosswire into a folder of the same name `GerBoLut.zip -> .\GerBoLut`. 
+Move this folder into the same folder as BibleMultiConverter (WARNING: This is not the correct method as of 16/01/2022, you need to install this bible as a module, to do this easily download a copy of [Bible Time](https://bibletime.info/) and install your bible from there)</s>
+Extract from the downloaded zip (i.e. `gerbolut.zip`): `/modules/texts/ztext/`. For `GerBoLut` this meant I now had a file called `GerBoLut` containing both `ot` and `nt` files (i.e. `nt.bzz`)
 5. Open a commandline window in the directory which contains `BibleMultiConverter-AllInOneEdition.jar`. (Shift+Right-Click `Open PowerShell window here`)
 6. Generate a "Diffable" file:
    For example, if I was doing this for `GerBoLut`:
@@ -28,7 +30,7 @@ The general form would be:
 10. Generate your bible tex file:
 
 ```
-> python .\main.py -o .\<the name of your text file>.txt
+> python .\main.py -b .\<the name of your text file>.txt
 ```
 
 11. Compile your `.tex` file in anyway you like!

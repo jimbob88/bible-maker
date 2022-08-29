@@ -1,154 +1,103 @@
+import contextlib
 from collections import OrderedDict
 import re
 import itertools
-import pprint as pp
 import json
+from pathlib import Path
 from string import Template
 
-
 import argparse
+from typing import Sequence, Tuple, List
+
+from conversion_table import joined_conversion_table
+
 
 class MyTemplate(Template):
-    '''
+    """A template for `.tex` files
+
     https://stackabuse.com/formatting-strings-with-the-python-template-class/
-    '''
+    """
     delimiter = '$'
 
 
-parser = argparse.ArgumentParser(description = "A software for generating bibles")
-parser.add_argument('--bibletxt', '-o', required=True, help="Choose which bible DIFFABLE you will use")
-parser.add_argument('--paragrapher', '-p', required=False, help="select where the paragraphing json is")
-args = parser.parse_args()
-
-if args.paragrapher is not None:
-    para = json.load(open(args.paragrapher, 'r'))
+def get_args():
+    parser = argparse.ArgumentParser(description="A software for generating bibles")
+    parser.add_argument('--bibletxt', '-b', required=True, help="Choose which bible DIFFABLE you will use")
+    parser.add_argument('--paragrapher', '-p', required=False, help="select where the paragraphing json is")
+    return parser.parse_args()
 
 
-conversion_table = OrderedDict({
-    "ot": OrderedDict([
-        ("Gen", "Genesis"),
-        ("Exod", "Exodus"),
-        ("Lev", "Leviticus"),
-        ("Num", "Numbers"),
-        ("Deut", "Deuteronomy"),
-        ("Josh", "Josh"),
-        ("Judg", "Judges"),
-        ("Ruth", "Ruth"),
-        ("1Sam", "1 Samuel"),
-        ("2Sam", "2 Samuel"),
-        ("1Kgs", "1 Kings"),
-        ("2Kgs", "2 Kings"),
-        ("1Chr", "1 Chronicles"),
-        ("2Chr", "2 Chronicles"),
-        ("Ezra", "Ezra"),
-        ("Neh", "Nehemiah"),
-        ("Esth", "Esther"),
-        ("Job", "Job"),
-        ("Ps", "Psalms"),
-        ("Prov", "Proverbs"),
-        ("Eccl", "Ecclesiastes"),
-        ("Song", "Song of Solomon"),
-        ("Isa", "Isaiah"),
-        ("Jer", "Jeremiah"),
-        ("Lam", "Lamentations"),
-        ("Ezek", "Ezekial"),
-        ("Dan", "Daniel"),
-        ("Hos", "Hosea"),
-        ("Joel", "Joel"),
-        ("Amos", "Amos"),
-        ("Obad", "Obadiah"),
-        ("Jonah", "Johnah"),
-        ("Mic", "Micah"),
-        ("Nah", "Nahum"),
-        ("Hab", "Habakkuk"),
-        ("Zeph", "Zephaniah"),
-        ("Hag", "Haggai"),
-        ("Zech", "Zechariah"),
-        ("Mal", "Malachi"),
-    ]),
-    "nt": OrderedDict([
-        ("Matt", "Matthew"),
-        ("Mark", "Mark"),
-        ("Luke", "Luke"),
-        ("John", "John"),
-        ("Acts", "Acts"),
-        ("Rom", "Romans"),
-        ("1Cor", "1 Corinthians"),
-        ("2Cor", "2 Corinthians"),
-        ("Gal", "Galatians"),
-        ("Eph", "Ephesians"),
-        ("Phil", "Philippians"),
-        ("Col", "Colossians"),
-        ("1Thess", "1 Thessalonians"),
-        ("2Thess", "2 Thessalonians"),
-        ("1Tim", "1 Timothy"),
-        ("2Tim", "2 Timothy"),
-        ("Titus", "Titus"),
-        ("Phlm", "Philemon"),
-        ("Heb", "Hebrews"),
-        ("Jas", "James"),
-        ("1Pet", "1 Peter"),
-        ("2Pet", "2 Peter"),
-        ("1John", "1 John"),
-        ("2John", "2 John"),
-        ("3John", "3 John"),
-        ("Jude", "Jude"),
-        ("Rev", "Revelation"),
-    ]),
-})
-joined_conversion_table = OrderedDict()
-joined_conversion_table.update(conversion_table['ot'])
-joined_conversion_table.update(conversion_table['nt'])
+def load_json(file: str):
+    return json.load(Path(file).open('r', encoding='utf-8'))
 
-# Generate in form: r"(Gen|Rev) (\d+):(\d)+ .*"
-verse_regex = r"("+ '|'.join(joined_conversion_table)+ r") (\d+):(\d+) (.*)"
-print(verse_regex)
 
-with open(args.bibletxt, 'r', encoding='utf-8') as f:
-    bible = f.read()
+def verse_regex(abbreviations: Sequence[str]):
+    return r"(" + '|'.join(abbreviations) + r") (\d+):(\d+) (.*)"
 
-versed = re.findall(verse_regex, bible, re.MULTILINE)
-versed_book = OrderedDict([(item[0], list(item[1])) for item in itertools.groupby(versed, key=lambda x: x[0])])
 
-text = ""
+def group_bible_by_book(bible: str, regex: str) -> OrderedDict[str, List[Tuple[str, str, str, str]]]:
+    """
 
-for book, verses in versed_book.items():
-    book = joined_conversion_table[book]
-    # print(book)
-    text += (
-        r'\part{%s}\pagebreak[1]'
-        '\n'
-        r'\begin{multicols}{2}'
-        '\n' % book
-    )
-    for subsection in [(item[0], list(item[1])) for item in itertools.groupby(verses, key=lambda x: x[1]) ]:
-        # print(subsection)
-        text += (
-            r'\subparagraph*{%s}'
+    :param bible: The text of the bible ( a diff text )
+    :param regex: The regex which matches [GEN 1:1 TEXT]
+    :return: {'GEN': [('GEN', '1', '1', 'TEXT')]}
+    """
+    versed = re.findall(regex, bible, re.MULTILINE)
+    return OrderedDict([(item[0], list(item[1])) for item in itertools.groupby(versed, key=lambda x: x[0])])
+
+
+def tex_title(title: str) -> str:
+    return (
+            r'\part{%s}\pagebreak[1]'
             '\n'
-            % subsection[0]
-            )
-        for verse in subsection[1]:
-            text += (
-                '$^{%s}$ %s\n'
-                % (verse[2], verse[3])
-            )
-            if args.paragrapher is not None:
-                try:
-                    for pnumber, paragraph in enumerate(para[book][f"{int(subsection[0]):02d}"]):
-                        if int(verse[2])  == paragraph[-1]:
-                            text += r'\par'
-                except KeyError:
-                    pass
-     
-    text += (
-        r'\end{multicols}'
-        '\n'        
+            r'\begin{multicols}{2}'
+            '\n' % title
     )
 
 
-with open('generate.tex', 'w', encoding='utf-8') as f:
-    temp = MyTemplate(open('template.tex', 'r', encoding='utf-8').read())
-    f.write(temp.substitute(books=text))
+def chapters(verses: List[Tuple[str, str, str, str]]) -> OrderedDict[int, List[Tuple[str, str, str, str]]]:
+    """Given a list of the verses in a book, separates them by chapter number"""
+    return OrderedDict((int(item[0]), list(item[1])) for item in itertools.groupby(verses, key=lambda x: x[1]))
 
-print(text[:1000000])
+
+if __name__ == '__main__':
+    args = get_args()
+
+    if args.paragrapher is not None:
+        para = load_json(args.paragrapher)
+
+    v_regex = verse_regex(joined_conversion_table)
+
+    bible = Path(args.bibletxt).read_text(encoding='utf-8')
+    versed_book = group_bible_by_book(bible, v_regex)
+
+    text = ""
+    for abbreviated_name, verses in versed_book.items():
+        book_name = joined_conversion_table[abbreviated_name]
+        text += tex_title(book_name)
+
+        for subsection, chap_verses in chapters(verses).items():
+            text += (
+                    r'\subparagraph*{%s}'
+                    '\n'
+                    % subsection
+            )
+            for verse in chap_verses:
+                _, _, verse_num, verse_string = verse
+                text += (
+                        '$^{%s}$ %s\n'
+                        % (verse_num, verse_string)
+                )
+                if args.paragrapher is not None:
+                    with contextlib.suppress(KeyError):
+                        for paragraph in para[book_name][f"{subsection:02d}"]:
+                            if int(verse_num) == paragraph[-1]:
+                                text += r'\par'
+
+        text += (
+            r'\end{multicols}'
+            '\n'
+        )
+
+    template = MyTemplate(Path('template.tex').read_text(encoding='utf-8'))
+    Path('generate.tex').write_text(template.substitute(books=text), encoding='utf-8')
