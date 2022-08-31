@@ -1,13 +1,14 @@
+import argparse
 import contextlib
-from collections import OrderedDict
-import re
 import itertools
 import json
+import re
+from collections import OrderedDict
 from pathlib import Path
 from string import Template
-
-import argparse
 from typing import Sequence, Tuple, List
+
+from pysword.modules import SwordModules
 
 from conversion_table import joined_conversion_table
 
@@ -22,7 +23,8 @@ class MyTemplate(Template):
 
 def get_args():
     parser = argparse.ArgumentParser(description="A software for generating bibles")
-    parser.add_argument('--bibletxt', '-b', required=True, help="Choose which bible DIFFABLE you will use")
+    parser.add_argument('--module', '-m', required=False, help="Choose which bible SWORD module zip to use")
+    parser.add_argument('--bibletxt', '-b', required=False, help="Choose which bible DIFFABLE you will use")
     parser.add_argument('--paragrapher', '-p', required=False, help="select where the paragraphing json is")
     return parser.parse_args()
 
@@ -60,9 +62,7 @@ def chapters(verses: List[Tuple[str, str, str, str]]) -> OrderedDict[int, List[T
     return OrderedDict((int(item[0]), list(item[1])) for item in itertools.groupby(verses, key=lambda x: x[1]))
 
 
-if __name__ == '__main__':
-    args = get_args()
-
+def diff_main(args):
     if args.paragrapher is not None:
         para = load_json(args.paragrapher)
 
@@ -76,11 +76,11 @@ if __name__ == '__main__':
         book_name = joined_conversion_table[abbreviated_name]
         text += tex_title(book_name)
 
-        for subsection, chap_verses in chapters(verses).items():
+        for chapter_num, chap_verses in chapters(verses).items():
             text += (
                     r'\subparagraph*{%s}'
                     '\n'
-                    % subsection
+                    % chapter_num
             )
             for verse in chap_verses:
                 _, _, verse_num, verse_string = verse
@@ -90,7 +90,7 @@ if __name__ == '__main__':
                 )
                 if args.paragrapher is not None:
                     with contextlib.suppress(KeyError):
-                        for paragraph in para[book_name][f"{subsection:02d}"]:
+                        for paragraph in para[book_name][f"{chapter_num:02d}"]:
                             if int(verse_num) == paragraph[-1]:
                                 text += r'\par'
 
@@ -98,6 +98,53 @@ if __name__ == '__main__':
             r'\end{multicols}'
             '\n'
         )
+    return text
+
+
+def pysword_main(args):
+    if args.paragrapher is not None:
+        para = load_json(args.paragrapher)
+    modules = SwordModules(args.module)
+    found_modules = modules.parse_modules()
+    bible = modules.get_bible_from_module(Path(args.module).stem)
+
+    text = ""
+    for testament, books in bible.get_structure().get_books().items():
+        for book in books:
+            text += tex_title(book.name)
+            for chapter_num in range(book.num_chapters):
+                print(f'{book.name} - {chapter_num}')
+                text += (
+                        r'\subparagraph*{%s}'
+                        '\n'
+                        % (chapter_num + 1)
+                )
+                for verse_num in range(1, book.chapter_lengths[chapter_num]):
+                    verse = bible.get(books=[book.name], chapters=[chapter_num + 1], verses=[verse_num])
+                    text += (
+                            '$^{%s}$ %s\n'
+                            % (verse_num, verse)
+                    )
+                    if args.paragrapher is not None:
+                        with contextlib.suppress(KeyError):
+                            for paragraph in para[book.name][f"{chapter_num:02d}"]:
+                                if int(verse_num) == paragraph[-1]:
+                                    text += r'\par'
+    text += (
+        r'\end{multicols}'
+        '\n'
+    )
+    return text
+
+
+if __name__ == '__main__':
+    args = get_args()
+    if args.bibletxt:
+        text = diff_main(args)
+    elif args.module:
+        text = pysword_main(args)
+    else:
+        text = ""
 
     template = MyTemplate(Path('template.tex').read_text(encoding='utf-8'))
     Path('generate.tex').write_text(template.substitute(books=text), encoding='utf-8')

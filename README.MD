@@ -2,7 +2,26 @@
 
 This is a piece of software to help you generate your own copy of the bible!
 
-## Guide
+## Initial setup
+
+```commandline
+pip install -r requirements.txt
+```
+
+
+## Using a zip - Guide
+1. Download the copy of your bible from [Crosswire's Module Database](http://crosswire.org/sword/modules/ModDisp.jsp?modType=Bibles). I personally chose: [GerBoLut](http://crosswire.org/sword/modules/ModInfo.jsp?modName=GerBoLut)
+2. Save the location of `[bible_id].zip`
+3. Execute `main.py`
+```commandline
+python main.py --module [bible_id].zip
+```
+4. Compile the `generate.tex` file. For example:
+```commandline
+latexmk -pvc -pdf -xelatex -interaction=nonstopmode generate.tex 
+```
+
+## Using a Diff - Guide (Alternative Method)
 
 1. Download the copy of your bible from [Crosswire's Module Database](http://crosswire.org/sword/modules/ModDisp.jsp?modType=Bibles). I personally chose: [GerBoLut](http://crosswire.org/sword/modules/ModInfo.jsp?modName=GerBoLut)
 2. Download a copy of schierlm's [BibleMultiConverter](https://github.com/schierlm/BibleMultiConverter). I'd recommend `BibleMultiConverter-AllInOneEdition-0.0.8.zip` (this is the current version available as of 29/08/2022)
@@ -33,7 +52,7 @@ The general form would be:
 > python .\main.py -b .\<the name of your text file>.txt
 ```
 
-11. Compile your `.tex` file in anyway you like!
+11. Compile your `.tex` file in any way you like!
     For example:
 
 ```
@@ -43,6 +62,7 @@ The general form would be:
 ## Known Issues
 
 - You can't mess and change the names of the books in the bible, because the `paragrapher` relies on these names to be the same, this could cause any number of issues if you start fiddling with stuff! This should be fixed sometime in the future!
+- If you don't have much memory `pdflatex` can sometimes fail
 
 ## Screenshots
 
@@ -54,3 +74,20 @@ You may be wondering how this version of the bible has convenient breaks through
 
 - Thanks to [schierlm](https://github.com/schierlm) for his amazing [BibleMultiConverter](https://github.com/schierlm/BibleMultiConverter)
 - Thanks to [The CrossWire Bible Society](https://crosswire.org/) for continuing to provide easy access to Bibles in many languages!
+
+
+## Usage
+```commandline
+usage: main.py [-h] [--module MODULE] [--bibletxt BIBLETXT] [--paragrapher PARAGRAPHER]
+
+A software for generating bibles
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --module MODULE, -m MODULE
+                        Choose which bible SWORD module zip to use
+  --bibletxt BIBLETXT, -b BIBLETXT
+                        Choose which bible DIFFABLE you will use
+  --paragrapher PARAGRAPHER, -p PARAGRAPHER
+                        select where the paragraphing json is
+```
