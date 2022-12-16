@@ -6,7 +6,7 @@ from bible_maker.bible_objects import Verse, CarriageReturn, Chapter, Book, Bibl
 def tex_title(title: str) -> str:
     """Initiates a new Book (as a LaTeX chapter)"""
     return (
-            r'\chapter{%s}\pagebreak[1]'
+            r'\biblebook{%s}'  # \pagebreak[1]
             '\n'
             r'\begin{multicols}{2}'
             '\n' % title
@@ -31,7 +31,7 @@ def verse_to_tex(verse: Union[Verse, CarriageReturn]) -> str:
 def chapter_to_tex(chapter: Chapter) -> str:
     """Creates a chapter subheading and then adds all the verses afterwards"""
     chap_text = (
-            r'\subparagraph*{%s}'
+            r'\biblechapter{%s}'
             '\n'
             % chapter.num
     )

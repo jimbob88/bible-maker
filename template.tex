@@ -13,8 +13,8 @@
 \makeatletter
 \let\old@l@part\l@part
 \renewcommand{\l@part}[2]{%
-  \old@l@part{#1}{#2}% Regular setting of \part in ToC
-  \pagebreak[0]}% Add a zero penalty (for possible page break)
+    \old@l@part{#1}{#2}% Regular setting of \part in ToC
+    \pagebreak[0]}% Add a zero penalty (for possible page break)
 \makeatother
 
 
@@ -36,6 +36,53 @@
 
 \titleformat{\chapter}[display]
 {\normalfont\bfseries}{}{0pt}{\Huge}
+
+
+%%%%%%%%% CUSTOM TITLE ACCESS
+\newcommand{\currentbiblechapter}{}
+\newcommand{\currentbiblebook}{}
+
+
+%%%%%%%%%%%%%%%% CUSTOM SECTION
+% https://tex.stackexchange.com/questions/562420/how-would-one-use-titlesec-to-make-drop-caps-sections
+\usepackage{lettrine}
+%\titleformat{\section}[runin]
+%{\normalfont\Large\bfseries}{}{1em}{}
+\titleformat{\section}
+{\normalfont\Large\bfseries\filcenter}{}
+{0em}{}
+
+\NewDocumentCommand\biblechapter{O{#2} m}{%
+    \section[#1]{#2}
+    \renewcommand{\currentbiblechapter}{#1}
+    % need latex2e Jun 2021
+    \AddToHookNext{para/begin}{%
+        \lettrine[lines=2,nindent=0pt,findent=2pt]{\textbf{#1}}{}%
+    }%
+}
+
+%%%%%%%%%%% CUSTOM BOOK HEADER
+\NewDocumentCommand\biblebook{O{#2} m}{%
+    \chapter{#1}
+    \renewcommand{\currentbiblebook}{#1}
+    % need latex2e Jun 2021
+%    \AddToHookNext{para/begin}{%
+%        \lettrine[lines=2,nindent=0pt,findent=2pt]{\textbf{#1}}{}%
+%    }%
+}
+
+%%%%%%%%%%% CUSTOM HDR
+\usepackage{fancyhdr}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\currentbiblebook\hspace{4pt}\currentbiblechapter}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+
+%%%%%%%%%% Only print books and testaments in table of contents
+\setcounter{tocdepth}{0}
 
 
 %%%%%%%%%%% DOCUMENT ITSELF
