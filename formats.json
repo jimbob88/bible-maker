@@ -1,0 +1,14 @@
+[
+  {
+    "long": "module",
+    "short": "m",
+    "help": "Choose which bible SWORD module zip to use",
+    "method": ".bible_format_plugins.sword.args_to_bible"
+  },
+  {
+    "long": "bibletxt",
+    "short": "b",
+    "help": "Choose which bible DIFFABLE you will use",
+    "method": ".bible_format_plugins.diff.args_to_bible"
+  }
+]

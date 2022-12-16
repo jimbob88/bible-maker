@@ -1,6 +1,7 @@
 import itertools
 import re
 from collections import OrderedDict
+from pathlib import Path
 from typing import Sequence, List, Tuple, NamedTuple
 
 from bible_maker.bible_objects import Verse, Chapter, Book, Bible
@@ -86,3 +87,8 @@ def diff_to_bible(diff_source: str):
     return Bible(
         testaments.ot_books, testaments.nt_books
     )
+
+
+def args_to_bible(args) -> Bible:
+    src = Path(args.bibletxt).read_text(encoding="utf-8")
+    return diff_to_bible(src)

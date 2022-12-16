@@ -1,7 +1,9 @@
+from pathlib import Path
 from typing import List, Generator
 
 from pysword.bible import SwordBible
 from pysword.books import BookStructure
+from pysword.modules import SwordModules
 
 from bible_maker.bible_objects import Verse, Chapter, Book, Bible
 
@@ -21,3 +23,9 @@ def sword_bible_to_bible(bible: SwordBible) -> Bible:
     ot = list(testament_books(books['ot'], bible))
     nt = list(testament_books(books['nt'], bible))
     return Bible(ot_books=ot, nt_books=nt)
+
+
+def args_to_bible(args) -> Bible:
+    modules = SwordModules(args.module)
+    sword = modules.get_bible_from_module(Path(args.module).stem)
+    return sword_bible_to_bible(sword)
