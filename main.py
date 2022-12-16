@@ -5,10 +5,7 @@ from pathlib import Path
 from string import Template
 from typing import TypedDict, Callable, List, Dict, Optional
 
-from pysword.modules import SwordModules
-
-from bible_maker.bible_format_plugins.diff import diff_to_bible
-from bible_maker.bible_format_plugins.sword import sword_bible_to_bible
+from bible_maker import paragraph
 from bible_maker.tex import bible_to_tex
 
 
@@ -22,6 +19,7 @@ class MyTemplate(Template):
 
 
 class Argument(TypedDict):
+    """format.json"""
     long: str
     short: str
     help: str
@@ -90,6 +88,9 @@ def main():
     method = get_method(function_path)
 
     bible = method(args)
+
+    if args.paragrapher:
+        paragraph.update_bible(bible, load_json(Path(args.paragrapher)))
 
     text = bible_to_tex(bible)
 

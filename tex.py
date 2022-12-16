@@ -24,7 +24,7 @@ def verse_to_tex(verse: Union[Verse, CarriageReturn]) -> str:
                 % (verse.num, verse.text)
         )
     if isinstance(verse, CarriageReturn):
-        return "\n"
+        return "\\par\n"
     raise NotImplementedError(f"Couldn't deal with {verse}!")
 
 
