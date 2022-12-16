@@ -20,8 +20,8 @@ def verse_to_tex(verse: Union[Verse, CarriageReturn]) -> str:
     """
     if isinstance(verse, Verse):
         return (
-                '$^{%s}$ %s\n'
-                % (verse.num, verse.text)
+                '\\mbox{$^{%s}$ %s} %s\n'
+                % (verse.num, verse.text.split(' ')[0], ' '.join(verse.text.split(' ')[1:]))
         )
     if isinstance(verse, CarriageReturn):
         return "\\par\n"
